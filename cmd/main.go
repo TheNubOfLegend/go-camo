@@ -49,43 +49,43 @@ func main() {
 }
 
 func max(x, y int) int {
-    if x > y {
-        return x
-    }
-    return y
+  if x > y {
+    return x
+  }
+  return y
 }
 
 func horspool(file, pattern []byte) []int {
-    // file, err := os.ReadFile("test")
-    // if err != nil {
-    //     fmt.Println("no file nerd")
-    // }
+  // file, err := os.ReadFile("test")
+  // if err != nil {
+  //     fmt.Println("no file nerd")
+  // }
 
-    // var pattern []byte = []byte("good")
-    var result []int
-    var badChar [256]int
+  // var pattern []byte = []byte("good")
+  var result []int
+  var badChar [256]int
 
-    for i := range pattern {
-        badChar[pattern[i]] = i
+  for i := range pattern {
+    badChar[pattern[i]] = i
+  }
+
+  offset := 0
+  count := 0
+  i := len(pattern) - 1
+  for offset + len(pattern) < len(file) {
+    if file[i + offset] != pattern[i] {
+      offset += max(1, i - badChar[file[i + offset]])
+      i = len(pattern) - 1
+    } else if i == 0 {
+      result = append(result, offset)
+      count++
+      fmt.Printf("%d found pattern at %d\n", count, offset)
+
+      offset += len(pattern)
+      i = len(pattern) - 1
+    } else {
+      i--
     }
-
-    offset := 0
-    count := 0
-    i := len(pattern) - 1
-    for offset + len(pattern) < len(file) {
-        if file[i + offset] != pattern[i] {
-            offset += max(1, i - badChar[file[i + offset]])
-            i = len(pattern) - 1
-        } else if i == 0 {
-            result = append(result, offset)
-            count++
-            fmt.Printf("%d found pattern at %d\n", count, offset)
-
-            offset += len(pattern)
-            i = len(pattern) - 1
-        } else {
-            i--
-        }
-    }
-    return result
+  }
+  return result
 }
