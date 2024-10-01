@@ -3,6 +3,7 @@ package main
 import (
   "fmt"
   "os"
+  "os/exec"
 )
 
 type Grammar struct {
@@ -16,36 +17,24 @@ func main() {
     fmt.Println("no file nerd")
   }
 
+  if(err==nil){fmt.Println("nerd")}
+
   fmt.Println(string(file))
 
-  language := Grammar { translation: make(map[string]string), whitespace: []byte{ ' ', '\n', 0x09 } }
+  language := Grammar { translation: make(map[string]string), whitespace: []byte{ ' ', '\n', 0x09, '(', ')', '{', '}', ';' } }
+  //TODO: currently, translation could override previous translation
   language.translation["lsa"] = "if"
 
   for orig, trans := range language.translation {
-    occurrences := horspool(file, []byte(orig))
-    for _, val := range occurrences {
-      file = append(file[:val], append([]byte(trans), file[val+len(orig):]...)...)
-    }
-
-    // for i := range file {
-    //   if i + len(orig) < len(file) && orig[0] == file[i] {
-    //     match := true
-    //     for j := range len(orig) - 1 {
-    //       if orig[j] != file[i+j] {
-    //         match = false
-    //       }
-    //     }
-    //     if match {
-    //       for _, char := range language.whitespace {
-    //         if file[i+len(orig)] == char {
-    //           file = append(file[:i], append([]byte(trans), file[i+len(orig):]...)...)
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    file = horspool(file, []byte(orig), []byte(trans))
   }
   fmt.Println(string(file))
+
+  os.WriteFile(".camo/main.camo.go", file, os.FileMode(int(0777)))
+  err = exec.Command("go", "run", ".camo/main.camo.go").Run()
+  if err != nil {
+    fmt.Println("nononononono")
+  }
 }
 
 func max(x, y int) int {
@@ -55,14 +44,8 @@ func max(x, y int) int {
   return y
 }
 
-func horspool(file, pattern []byte) []int {
-  // file, err := os.ReadFile("test")
-  // if err != nil {
-  //     fmt.Println("no file nerd")
-  // }
-
-  // var pattern []byte = []byte("good")
-  var result []int
+//also replaces
+func horspool(file, pattern, trans []byte) []byte {
   var badChar [256]int
 
   for i := range pattern {
@@ -77,15 +60,16 @@ func horspool(file, pattern []byte) []int {
       offset += max(1, i - badChar[file[i + offset]])
       i = len(pattern) - 1
     } else if i == 0 {
-      result = append(result, offset)
+      //TODO: probably inefficient as hell to resize array every time like this instead of doing mass collection and mass replacement
+      file = append(file[:offset], append([]byte(trans), file[len(pattern) + offset:]...)...)
       count++
       fmt.Printf("%d found pattern at %d\n", count, offset)
 
-      offset += len(pattern)
+      offset += len(trans)
       i = len(pattern) - 1
     } else {
       i--
     }
   }
-  return result
+  return file
 }

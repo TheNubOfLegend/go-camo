@@ -1,6 +1,9 @@
-lsa true {
-    fmt.Println("nerd")
-}
+package main
 
-lsalsa  lsa lsa lsalsa
-lalsaaalsaaaaaaaaaaaaaaaaa
+import "fmt"
+
+func main {
+  lsa true {
+      fmt.Println("tarvis")
+  }
+}
