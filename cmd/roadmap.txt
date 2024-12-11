@@ -1,3 +1,4 @@
+currently just a find-and-replace
 buffered reads
 hook lsp onto custom syntax
 true tokenizing at some point

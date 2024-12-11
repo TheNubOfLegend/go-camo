@@ -4,6 +4,7 @@ import (
   "fmt"
   "os"
   "os/exec"
+	"io"
 )
 
 type Grammar struct {
@@ -17,7 +18,7 @@ func main() {
     fmt.Println("no file nerd")
   }
 
-  if(err==nil){fmt.Println("nerd")}
+  if err==nil{fmt.Println("nerd")}
 
   fmt.Println(string(file))
 
@@ -31,10 +32,14 @@ func main() {
   fmt.Println(string(file))
 
   os.WriteFile(".camo/main.camo.go", file, os.FileMode(int(0777)))
-  err = exec.Command("go", "run", ".camo/main.camo.go").Run()
+	cmd := exec.Command("go", "run", ".camo/main.camo.go")
+
+	stdout, err := cmd.StdoutPipe()
   if err != nil {
     fmt.Println("nononononono")
   }
+
+	stdout.Read()
 }
 
 func max(x, y int) int {
